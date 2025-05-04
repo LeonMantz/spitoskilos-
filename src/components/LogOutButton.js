@@ -3,8 +3,9 @@ import { Button } from "@nextui-org/react";
 import { ExitToApp } from "@mui/icons-material";
 import { useRouter } from "next/navigation";
 
-export default async function LogOutButton() {
+export default function LogOutButton() {
   const router = useRouter();
+
   async function handleLogOut(event) {
     event.preventDefault();
 
@@ -12,16 +13,15 @@ export default async function LogOutButton() {
       method: "POST",
       headers: { "Content-Type": "application/json" },
     });
-    console.log(response);
-    response.json().then((data) => {
-      console.log(data);
-      const success = data.success;
-      console.log(success);
-      if (success) {
-        router.refresh();
-      }
-    });
+
+    const data = await response.json();
+    console.log(data);
+
+    if (data.success) {
+      router.refresh();
+    }
   }
+
   return (
     <form onSubmit={handleLogOut}>
       <Button isIconOnly color="danger" type="submit" size="sm">
