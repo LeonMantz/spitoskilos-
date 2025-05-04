@@ -5,102 +5,63 @@ import supabase from "../../lib/dbimage";
 export async function POST(req) {
   try {
     const formData = await req.formData();
-    const file = formData.get("file");
-    const username = formData.get("username");
-
-    // Validate file
-    if (!file) {
-      return Response.json({ success: false, error: "No file provided" });
-    }
 
     const client = await clientPromise;
     const db = client.db("users");
+
     const userpfp = await db
       .collection("users")
-      .find({ username: username })
+      .find({ username: formData.get("username") })
       .toArray();
 
-    if (!userpfp.length) {
-      return Response.json({ success: false, error: "User not found" });
-    }
-
-    let uploadResponse;
-
-    if (!userpfp[0].profile_picture) {
-      // For new uploads
-      uploadResponse = await supabase.storage
+    if (userpfp[0].profile_picture === "") {
+      const { data, error } = await supabase.storage
         .from("userphotos")
-        .upload(`${username}`, file, {
-          cacheControl: "3600",
-          upsert: false,
-        });
-    } else {
-      // For updates
-      // First remove the existing file
-      await supabase.storage.from("userphotos").remove([username]);
+        .upload(formData.get("username"), formData.get("file"));
 
-      // Then upload the new one
-      uploadResponse = await supabase.storage
+      const link = await supabase.storage
         .from("userphotos")
-        .upload(`${username}`, file, {
-          cacheControl: "3600",
-          upsert: true,
-        });
-    }
+        .getPublicUrl(formData.get("username"));
+      const database = client.db("users");
+      const users = database.collection("users");
+      const filter = { username: formData.get("username") };
+      const updateDoc = {
+        $set: {
+          profile_picture: link.data.publicUrl,
+        },
+      };
+      const result = await users.updateOne(filter, updateDoc);
 
-    if (uploadResponse.error) {
-      console.error("Supabase upload error:", uploadResponse.error);
-      return Response.json({
-        success: false,
-        error: uploadResponse.error.message,
-      });
-    }
+      const session = cookies().get("session").value;
+      let sessionObject = JSON.parse(session);
 
-    // Get the public URL
-    const { data: urlData } = await supabase.storage
-      .from("userphotos")
-      .getPublicUrl(username);
+      sessionObject.profile_picture = link.data.publicUrl;
 
-    if (!urlData.publicUrl) {
-      return Response.json({
-        success: false,
-        error: "Failed to get public URL",
-      });
-    }
-
-    // Update MongoDB
-    const result = await db
-      .collection("users")
-      .updateOne(
-        { username: username },
-        { $set: { profile_picture: urlData.publicUrl } }
-      );
-
-    // Update session cookie
-    const session = cookies().get("session");
-    if (session) {
-      let sessionObject = JSON.parse(session.value);
-      sessionObject.profile_picture = urlData.publicUrl;
       const new_session = JSON.stringify(sessionObject);
 
+      console.log(sessionObject);
+
       cookies().delete("session");
+
       cookies().set("session", new_session, {
         httpOnly: true,
         path: "/",
         maxAge: 60 * 60 * 24,
       });
+
+      return Response.json({ success: true });
+    } else {
+      const { data, error } = await supabase.storage
+        .from("userphotos")
+        .update(formData.get("username"), formData.get("file"));
+
+      return Response.json({ success: true });
     }
 
-    return Response.json({
-      success: true,
-      url: urlData.publicUrl,
-    });
+    return Response.json({ success: false });
   } catch (e) {
-    console.error("API error:", e);
-    return Response.json({
-      success: false,
-      error: e.message,
-      stack: process.env.NODE_ENV === "development" ? e.stack : undefined,
-    });
+    console.error("API error:", e.message);
+
+    return Response.json({ error: e.message });
   }
 }
