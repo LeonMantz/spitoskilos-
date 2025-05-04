@@ -40,6 +40,7 @@ export default function ListingsInfo({ params, user, loggedIn }) {
           body: JSON.stringify({ id }), // Send the ID in the request body
         });
         const listing = await response.json(); // Parse JSON
+        console.log(listing);
         setListing(listing);
       } catch (error) {
         console.log("Error fetching data:", error);
@@ -271,7 +272,7 @@ export default function ListingsInfo({ params, user, loggedIn }) {
               <div className="w-[30%] flex flex-col items-center">
                 <div className="w-[90%] border rounded-xl flex items-center  pl-2 py-2 drop-shadow-xl leading-4">
                   <img
-                    src="https://fkhspeqddfrdtmngsgvd.supabase.co/storage/v1/object/public/userphotos/kkoukos"
+                    src="https://ddwzfbmuwqqymeflaocl.supabase.co/storage/v1/object/public/userphotos//kkoukos"
                     className="h-14 w-14 rounded-full"
                   ></img>
 

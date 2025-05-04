@@ -191,7 +191,7 @@ export default function Filters({
             </Button>
           </div>
 
-          <ButtonGroup>
+          {/* <ButtonGroup>
             <Tooltip content="Show only listings.">
               <Button color="primary" variant="ghost" size="lg" isIconOnly>
                 <Dvr fontSize="xl" />
@@ -202,7 +202,7 @@ export default function Filters({
                 <Map fontSize="xl"></Map>
               </Button>
             </Tooltip>
-          </ButtonGroup>
+          </ButtonGroup> */}
         </div>
       </div>
     </>

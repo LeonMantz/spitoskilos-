@@ -37,7 +37,7 @@ export default function PropertyDisplay({
           ) : (
             // Display spinner while loading
             <>
-              <div className="w-[35%] min-w-[35%] ">
+              <div className="w-full min-w-[35%] ">
                 <ListingsGallery
                   data={filteredListings}
                   name={name}
@@ -46,9 +46,9 @@ export default function PropertyDisplay({
                   loggedIn={loggedIn}
                 />
               </div>
-              <div className="w-full h-full">
+              {/* <div className="w-full h-full">
                 <Map lat={lat} lng={lng} markers={markersList} />
-              </div>
+              </div> */}
             </>
           )}
         </Suspense>

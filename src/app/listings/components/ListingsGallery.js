@@ -20,7 +20,7 @@ export default function ListingsGallery({
         <div className="text-xs mb-4">Showing {data.length} results</div>
 
         <div className="flex-col overflow-y-scroll no-scrollbar">
-          <div className="flex flex-wrap justify-center">
+          <div className="flex flex-wrap justify-center px-52">
             {data.map((property) => (
               <PropertyCard
                 key={property._id}
